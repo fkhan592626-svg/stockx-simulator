@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import  { useEffect, useState } from 'react'
 import { portfolioAPI } from '../services/api'
 import type { Transaction } from '../types'
 

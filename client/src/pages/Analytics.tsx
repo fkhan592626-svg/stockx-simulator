@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import  { useEffect, useState } from 'react'
 import { portfolioAPI } from '../services/api'
 import type { PortfolioSummary, Transaction } from '../types'
 import { TrendingUp, TrendingDown, DollarSign, BarChart2 } from 'lucide-react'
 import {
-  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
+   XAxis, YAxis, Tooltip, ResponsiveContainer,
   CartesianGrid, BarChart, Bar, PieChart, Pie, Cell, Legend
 } from 'recharts'
 

@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import  { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useSocket } from '../context/SocketContext'
 import { portfolioAPI, stockAPI } from '../services/api'
 import type { PortfolioSummary, Stock } from '../types'
 import { TrendingUp, TrendingDown, DollarSign, Briefcase, Activity } from 'lucide-react'
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+
 
 const Dashboard = () => {
   const { user } = useAuth()
