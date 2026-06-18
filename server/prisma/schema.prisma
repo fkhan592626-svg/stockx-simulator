@@ -1,0 +1,170 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  username     String   @unique
+  password     String
+  firstName    String
+  lastName     String
+  cashBalance  Float    @default(100000)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  portfolio    Portfolio?
+  orders       Order[]
+  watchlist    Watchlist[]
+  buyTrades    Transaction[] @relation("BuyerTransactions")
+  sellTrades   Transaction[] @relation("SellerTransactions")
+
+  @@map("users")
+}
+
+model Stock {
+  id            String   @id @default(uuid())
+  symbol        String   @unique
+  name          String
+  sector        String
+  currentPrice  Float
+  previousClose Float
+  change        Float    @default(0)
+  changePercent Float    @default(0)
+  volume        BigInt   @default(0)
+  marketCap     Float    @default(0)
+  high52Week    Float    @default(0)
+  low52Week     Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  priceHistory  PriceHistory[]
+  holdings      Holding[]
+  orders        Order[]
+  transactions  Transaction[]
+  watchlists    Watchlist[]
+
+  @@map("stocks")
+}
+
+model PriceHistory {
+  id        String   @id @default(uuid())
+  stockId   String
+  open      Float
+  high      Float
+  low       Float
+  close     Float
+  volume    BigInt
+  timestamp DateTime
+
+  stock     Stock    @relation(fields: [stockId], references: [id])
+
+  @@map("price_history")
+}
+
+model Portfolio {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  totalValue  Float    @default(0)
+  totalCost   Float    @default(0)
+  totalPnL    Float    @default(0)
+  dayPnL      Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id])
+  holdings    Holding[]
+
+  @@map("portfolios")
+}
+
+model Holding {
+  id              String    @id @default(uuid())
+  portfolioId     String
+  stockId         String
+  quantity        Float
+  averageBuyPrice Float
+  totalCost       Float
+  currentValue    Float     @default(0)
+  pnl             Float     @default(0)
+  pnlPercent      Float     @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  portfolio       Portfolio @relation(fields: [portfolioId], references: [id])
+  stock           Stock     @relation(fields: [stockId], references: [id])
+
+  @@unique([portfolioId, stockId])
+  @@map("holdings")
+}
+
+model Order {
+  id                String        @id @default(uuid())
+  userId            String
+  stockId           String
+  orderType         OrderType
+  executionType     ExecutionType
+  quantity          Float
+  remainingQuantity Float
+  price             Float?
+  status            OrderStatus   @default(PENDING)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  user              User          @relation(fields: [userId], references: [id])
+  stock             Stock         @relation(fields: [stockId], references: [id])
+
+  @@map("orders")
+}
+
+model Transaction {
+  id            String   @id @default(uuid())
+  buyerId       String
+  sellerId      String?
+  stockId       String
+  quantity      Float
+  executedPrice Float
+  totalAmount   Float
+  timestamp     DateTime @default(now())
+
+  buyer         User     @relation("BuyerTransactions", fields: [buyerId], references: [id])
+  seller        User?    @relation("SellerTransactions", fields: [sellerId], references: [id])
+  stock         Stock    @relation(fields: [stockId], references: [id])
+
+  @@map("transactions")
+}
+
+model Watchlist {
+  id        String   @id @default(uuid())
+  userId    String
+  stockId   String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  stock     Stock    @relation(fields: [stockId], references: [id])
+
+  @@unique([userId, stockId])
+  @@map("watchlists")
+}
+
+enum OrderType {
+  BUY
+  SELL
+}
+
+enum ExecutionType {
+  MARKET
+  LIMIT
+}
+
+enum OrderStatus {
+  PENDING
+  PARTIALLY_FILLED
+  FILLED
+  CANCELLED
+}
