@@ -20,9 +20,9 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const token = localStorage.getItem('accessToken')
     if (!token) return
 
-    const newSocket = io('http://localhost:5000', {
-      auth: { token },
-    })
+    const newSocket = io(import.meta.env.VITE_API_URL, {
+  auth: { token },
+})
 
     newSocket.on('connect', () => {
       setConnected(true)
